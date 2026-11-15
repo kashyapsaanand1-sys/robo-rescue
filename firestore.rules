@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /registrations/{ticketId} {
+      // The game can create a completed ticket record without a login.
+      // The browser cannot read, list, edit, or delete registrations.
+      allow create: if request.resource.data.completed == true
+        && request.resource.data.ticketId == ticketId
+        && request.resource.data.name is string
+        && request.resource.data.usn is string
+        && request.resource.data.phone is string
+        && request.resource.data.type in ['SINGLE', 'TEAM']
+        && request.resource.data.teamSize is int
+        && request.resource.data.teamSize >= 1
+        && request.resource.data.teamSize <= 3;
+      // Only the dedicated Firebase Authentication admin account can read/export.
+      allow read: if request.auth != null
+        && request.auth.token.email == 'saanandthegreat@aisc-robo-admin.com';
+      allow update, delete: if false;
+    }
+  }
+}
