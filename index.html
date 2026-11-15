@@ -70,7 +70,7 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:flex-
 // ===== EDIT EVENT DETAILS =====
 const EVENT={club:"AISC",college:"SJCE MYSORE",name:"ROBO RESCUE",date:"26 NOV 2026 · 5:30–7:30 PM",place:"VENUE: TBD",url:"aisc-sjce.pages.dev",wa:"https://chat.whatsapp.com/FL0RXcPV7JH36VQ1y2QyBu?s=cl&p=a&iam=2",offer:"Win the game to get your pass!"};
 // Paste your deployed Google Apps Script Web App URL here after setup.
-const SHEETS_ENDPOINT="https://script.google.com/macros/s/AKfycbzsvLT8va9UrDAlg8L7-fH7ucEctSMwdpG8gEQn1PMnajBZpCU0GuuU78_V7ScLvTj6/exec";
+const SHEETS_ENDPOINT="https://script.google.com/macros/s/AKfycbyI0SUCzH34nz_xG0ZpEC-4NXGS4LmWep4ShnrCBfoBVjfye6Te_SxMnFVhQPiV0dZz/exec";
 // ==============================
 const C=document.getElementById('c');let X=C.getContext('2d');
 const W=320,H=256,T=32,OY=32;
@@ -209,7 +209,7 @@ C.addEventListener('pointerdown',e=>{
  const r=C.getBoundingClientRect(),x=(e.clientX-r.left)*C.width/r.width,y=(e.clientY-r.top)*C.height/r.height;
  if(x>=90&&x<=190&&y>=140&&y<=220){
   cheatTaps++;
-  if(cheatTaps>=5&&!admin){admin=true;beep(950,.35,'sawtooth');alert("ADMIN MODE UNLOCKED — UNLIMITED LIVES");}
+  if(cheatTaps>=5&&!admin){admin=true;beep(950,.35,'sawtooth');alert("ADMIN MODE UNLOCKED — UNLIMITED LIVES");pingSheet();}
  }else{cheatTaps=0;askName();}
 });
 C.addEventListener('pointerdown',e=>{if(state!=='custom')return;const r=C.getBoundingClientRect(),x=(e.clientX-r.left)*C.width/r.width,y=(e.clientY-r.top)*C.height/r.height;
@@ -375,6 +375,7 @@ function draw(){
 const LOGO=new Image();LOGO.src=document.getElementById('lg').src;
 function pwalk(ox,oy,sc,t,mv){if(CFG.target==0)dog(ox,oy,sc,0,t,mv?1:0);else companion(ox,oy+(mv?Math.abs(Math.sin(t/5))*3:0),sc,t)}
 C.addEventListener('pointerdown',()=>{if((state=='intro'&&IT>45)||state=='map'||state=='dead')PR.start=1;else if(state=='talk'||(state=='tut'&&TS==5))PR.a=1});
+function pingSheet(){fetch(SHEETS_ENDPOINT+"?action=ping").then(r=>r.json()).then(j=>alert("SHEETS CONNECTED OK from this page.\nRows: "+JSON.stringify(j.rows))).catch(e=>alert("SHEETS NOT REACHABLE FROM THIS PAGE: "+(e.message||e)))}
 async function syncRegistrationToSheet(){
  if(REG.sheetSending || REG.sheetSent || !REG.recs || !G || !G.dogFree) return false;
  REG.sheetSending=true;
