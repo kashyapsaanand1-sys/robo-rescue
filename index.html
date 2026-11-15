@@ -466,10 +466,10 @@ let admTap=0,admT=0,ADM=[];gid('toplogo').src=gid('lg').src;
 gid('toplogo').addEventListener('pointerdown',()=>{const n=Date.now();admTap=n-admT>1800?1:admTap+1;admT=n;if(admTap>=7){admTap=0;admOpen()}});
 function admOpen(){gid('admgate').style.display='flex';window.FB&&FB.user&&FB.user()?dash():admLogin()}
 function admClose(){gid('admgate').style.display='none';gid('admbox').innerHTML=''}
-function admLogin(){const b=gid('admbox');b.innerHTML='<h2 style="color:#7fe0ff;text-align:center">ADMIN LOGIN</h2><input id="au" placeholder="Username" autocomplete="username" autocapitalize="none" spellcheck="false"><input id="ap" type="password" placeholder="Password" autocomplete="current-password"><div id="ae" style="color:#ff8f8f;min-height:18px;font-size:13px"></div><button class="rb" id="al">LOGIN</button><button class="rb" id="ax" style="background:#444">CLOSE</button>';
+function admLogin(){const b=gid('admbox');b.innerHTML='<h2 style="color:#7fe0ff;text-align:center">ADMIN LOGIN</h2><input id="au" type="email" placeholder="Admin email" autocomplete="username" autocapitalize="none" spellcheck="false"><input id="ap" type="password" placeholder="Password" autocomplete="current-password"><div id="ae" style="color:#ff8f8f;min-height:18px;font-size:13px"></div><button class="rb" id="al">LOGIN</button><button class="rb" id="ax" style="background:#444">CLOSE</button>';
  gid('ax').onclick=admClose;gid('ap').addEventListener('keydown',e=>{if(e.key=='Enter')gid('al').click()});
  gid('al').onclick=async()=>{const e=gid('ae');if(!window.FB||!FB.ready){e.textContent='Database not configured yet (see FIREBASE_SETUP.md)';return}
-  e.textContent='Checking...';try{await FB.login(gid('au').value,gid('ap').value);dash()}catch(x){console.error('AISC admin login failed:',x);e.textContent='Login failed: '+(x.code||'unknown')+' — '+(x.message||'Check Firebase settings');}}}
+  e.textContent='Checking...';try{await FB.login(gid('au').value,gid('ap').value);dash()}catch(x){console.error('AISC admin login failed:',x);e.textContent='Login failed: '+(x.code||'unknown')+' — '+(x.message||'Check Firebase Authentication settings')}}}
 async function dash(){const b=gid('admbox');b.innerHTML='<h2 style="color:#7fe0ff;text-align:center">ADMIN DASHBOARD</h2><p class="hn">Loading...</p>';
  try{const rows=await FB.loadAll();ADM=rows;const teams=new Set(rows.filter(r=>r.type=='TEAM').map(r=>r.teamId||r.registrationId)).size,singles=new Set(rows.filter(r=>r.type=='SINGLE').map(r=>r.registrationId)).size;
   b.innerHTML='<h2 style="color:#7fe0ff;text-align:center">ADMIN DASHBOARD</h2><div class="stg"><div><b>'+rows.length+'</b><span>PARTICIPANTS</span></div><div><b>'+(singles+teams)+'</b><span>REGISTRATIONS</span></div><div><b>'+teams+'</b><span>TEAMS</span></div></div>'+
@@ -489,11 +489,10 @@ import{getFirestore,collection,doc,writeBatch,getDocs,query,orderBy}from"https:/
 import{getAuth,signInWithEmailAndPassword,signOut,setPersistence,browserSessionPersistence}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 const cfg=window.FIREBASE_CONFIG,ok=!!(cfg&&cfg.projectId&&!/PASTE/.test(cfg.projectId+cfg.apiKey+cfg.appId));let db,auth;
 if(ok){const app=initializeApp(cfg);db=getFirestore(app);auth=getAuth(app)}
-const ADMIN_USERNAME="saanandthegreat";
-const ADMIN_EMAIL=ADMIN_USERNAME+"@aisc-robo-admin.com";
+const ADMIN_EMAIL="saanand.kas@gmail.com";
 window.FB={ready:ok,
  async save(docs){const b=writeBatch(db);docs.forEach(d=>b.set(doc(db,"registrations",d.ticketId),d));await b.commit()},
- async login(u,p){if(u.trim()!==ADMIN_USERNAME)throw new Error("auth/invalid-credential");await setPersistence(auth,browserSessionPersistence);await signInWithEmailAndPassword(auth,ADMIN_EMAIL,p)},
+ async login(u,p){if(u.trim().toLowerCase()!==ADMIN_EMAIL)throw new Error("Please enter the admin email shown in Firebase Authentication.");await setPersistence(auth,browserSessionPersistence);await signInWithEmailAndPassword(auth,ADMIN_EMAIL,p)},
  async logout(){await signOut(auth)},
  user(){return auth&&auth.currentUser},
  async loadAll(){const s=await getDocs(query(collection(db,"registrations"),orderBy("submittedAt","desc")));return s.docs.map(d=>d.data())}};
