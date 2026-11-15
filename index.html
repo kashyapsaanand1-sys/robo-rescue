@@ -70,7 +70,7 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:flex-
 // ===== EDIT EVENT DETAILS =====
 const EVENT={club:"AISC",college:"SJCE MYSORE",name:"ROBO RESCUE",date:"26 NOV 2026 · 5:30–7:30 PM",place:"VENUE: TBD",url:"aisc-sjce.pages.dev",wa:"https://chat.whatsapp.com/FL0RXcPV7JH36VQ1y2QyBu?s=cl&p=a&iam=2",offer:"Win the game to get your pass!"};
 // Paste your deployed Google Apps Script Web App URL here after setup.
-const SHEETS_ENDPOINT="https://script.google.com/macros/s/AKfycbxpTvon_NEI-aeOXvRFRdVnHPKBI1yJzBbahA6TJ6vaF0CUpyG3xcQv4gKHX7ialf_J/exec";
+const SHEETS_ENDPOINT="https://script.google.com/macros/s/AKfycbzsvLT8va9UrDAlg8L7-fH7ucEctSMwdpG8gEQn1PMnajBZpCU0GuuU78_V7ScLvTj6/exec";
 // ==============================
 const C=document.getElementById('c');let X=C.getContext('2d');
 const W=320,H=256,T=32,OY=32;
@@ -402,8 +402,8 @@ async function syncRegistrationToSheet(){
   selectedPet:TARGETS[CFG.target],
   character:{style:CFG.gender?"WOMAN":"MAN",skin:NAMES.skin[CFG.skin],hair:NAMES.hair[CFG.hair],hat:NAMES.hat[CFG.hat],outfit:(CFG.gender?OUTFITS_F:OUTFITS)[CFG.o].n},
   roomsCleared:7,
-  bonusRoundsCleared:0,
-  gameCompleted:false,
+  bonusRoundsCompleted:G.bdone===true,
+  gameCompleted:G.bdone===true,
   submittedAt:new Date().toISOString()
  };
  try{
