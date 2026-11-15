@@ -103,15 +103,15 @@ function up(e){S.players[e.dataset.i][e.dataset.k]=e.value}
 function sz(d){const n=S.players.length+d;if(n<2||n>3)return;d>0?S.players.push(blank()):S.players.pop();reg()}
 function reg(){let h='<h3>REGISTER</h3>';
 if(S.type=='team')h+=`<label>TEAM NAME<input value="${esc(S.team)}" oninput="S.team=this.value" maxlength="40" autocomplete="off"></label><div class="cy">PLAYERS: ${S.players.length}<span><button class="s" onclick="sz(-1)">-</button><button class="s" onclick="sz(1)">+</button></span></div>`;
-S.players.forEach((p,i)=>{h+=`<fieldset><legend>PLAYER ${i+1}</legend>`+[['name','FULL NAME','text'],['usn','USN (E.G. 4SF23CS001)','text'],['phone','MOBILE (10 DIGITS)','tel']].map(([k,l,t])=>`<label>${l}<input type="${t}" ${k=='phone'?'inputmode="numeric"':''} data-i="${i}" data-k="${k}" value="${esc(p[k])}" oninput="up(this)" maxlength="40" autocomplete="off" autocapitalize="${k=='usn'?'characters':'words'}"></label>`).join('')+`<label>BRANCH<select data-i="${i}" data-k="branch" onchange="up(this)">${opts(BR,p.branch)}</select></label><label>YEAR OF STUDY<select data-i="${i}" data-k="year" onchange="up(this)">${opts([1,2,3,4],p.year)}</select></label></fieldset>`});
+S.players.forEach((p,i)=>{h+=`<fieldset><legend>PLAYER ${i+1}</legend>`+[['name','FULL NAME','text'],['usn','USN (ANYTHING)','text'],['phone','MOBILE (10 DIGITS)','tel']].map(([k,l,t])=>`<label>${l}<input type="${t}" ${k=='phone'?'inputmode="numeric"':''} data-i="${i}" data-k="${k}" value="${esc(p[k])}" oninput="up(this)" maxlength="40" autocomplete="off" autocapitalize="${k=='usn'?'characters':'words'}"></label>`).join('')+`<label>BRANCH<select data-i="${i}" data-k="branch" onchange="up(this)">${opts(BR,p.branch)}</select></label><label>YEAR OF STUDY<select data-i="${i}" data-k="year" onchange="up(this)">${opts([1,2,3,4],p.year)}</select></label></fieldset>`});
 ov(h+'<p id="err"></p><button class="b" onclick="regNext()">NEXT</button><button class="b" onclick="title()">BACK</button>')}
 function regNext(){const er=[],seen=new Set();
 if(S.type=='team'&&S.team.trim().length<2)er.push('TEAM NAME NEEDED');
-S.players.forEach((p,i)=>{const n='PLAYER '+(i+1)+': ';p.name=p.name.trim();p.usn=p.usn.replace(/\s/g,'').toUpperCase();p.phone=p.phone.replace(/[\s-]/g,'').replace(/^(\+91|91|0)(?=\d{10}$)/,'');
+S.players.forEach((p,i)=>{const n='PLAYER '+(i+1)+': ';p.name=p.name.trim();p.usn=p.usn.trim();p.phone=p.phone.replace(/[\s-]/g,'').replace(/^(\+91|91|0)(?=\d{10}$)/,'');
 if(p.name.length<2)er.push(n+'NAME');
-if(!/^(?=.*[A-Z])(?=.*\d)[A-Z0-9]{8,12}$/.test(p.usn))er.push(n+'USN MUST HAVE LETTERS AND DIGITS');
+if(!p.usn)er.push(n+'USN NEEDED');
 if(!/^[6-9]\d{9}$/.test(p.phone))er.push(n+'MOBILE MUST BE 10 DIGITS');
-if(seen.has(p.usn))er.push(n+'DUPLICATE USN');seen.add(p.usn)});
+seen.add(p.usn)});
 if(er.length){$('#err').innerHTML=er.map(esc).join('<br>');return}
 S.players.forEach(p=>{if(!p.cfg.name)p.cfg.name=p.name.split(' ')[0].toUpperCase().slice(0,10)});S.ci=0;chr()}
 function chr(){const f=S.players[S.ci].cfg;
