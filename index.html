@@ -400,19 +400,14 @@ async function syncRegistrationToSheet(){
  try{
   localStorage.setItem("rr_last_submission",JSON.stringify(payload));
   if(!SHEETS_ENDPOINT.startsWith("https://")) throw new Error("Google Sheets endpoint is not configured");
-  await fetch(SHEETS_ENDPOINT,{
-   method:"POST",mode:"no-cors",
-   headers:{"Content-Type":"text/plain;charset=utf-8"},
-   body:JSON.stringify(payload),
-   keepalive:true
-  });
-  // no-cors hides the server response, so this means the browser sent the request,
-  // not that the spreadsheet has independently confirmed the row.
+  const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),25000);let j;
+  try{const r=await fetch(SHEETS_ENDPOINT,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload),signal:ac.signal});if(!r.ok)throw new Error("HTTP "+r.status);j=await r.json()}finally{clearTimeout(tm)}
+  if(!j||!j.ok)throw new Error((j&&j.error)||"server did not confirm");
   REG.sheetSent=true;
-  localStorage.setItem("rr_sheet_sync_status","sent_check_sheet");
+  localStorage.setItem("rr_sheet_sync_status","saved");
   return true;
  }catch(err){
-  localStorage.setItem("rr_sheet_sync_status","failed");
+  REG.sheetErr=(err&&err.name=="AbortError"?"timeout":String(err&&err.message||err)).slice(0,80);localStorage.setItem("rr_sheet_sync_status","failed");
   return false;
  }finally{
   REG.sheetSending=false;
@@ -431,7 +426,7 @@ async function showWin(){
   '<p style="text-align:center">Your event pass is ready. Download each team member’s ticket below.</p>'+
   REG.recs.map((r,i)=>'<button class="wb" data-t="'+i+'">⬇ TICKET · '+r.name.split(' ')[0].toUpperCase()+'</button>').join('')+
     '<div class="sheet-status '+(sent?'ok':'warn')+'">'+
-   (sent?'Registration request sent to Google Sheets. Please verify the row in your sheet.':'Registration could not be sent. Check your internet connection and use Retry below.')+
+   (sent?'Registration SAVED to Google Sheets (server confirmed).':'NOT SAVED: '+(REG.sheetErr||'unknown error')+'. Your tickets still work. Tap Retry below.')+
   '</div>'+
   '<button class="wb" id="retrySheet">↻ RETRY REGISTRATION SYNC</button>'+
   '<button class="wb wa" id="joinWA">OPTIONAL: JOIN ROBO RESCUE WHATSAPP GROUP</button>';
@@ -443,7 +438,7 @@ async function showWin(){
   const ok=await syncRegistrationToSheet();
   const status=T.querySelector('.sheet-status');
   status.className='sheet-status '+(ok?'ok':'warn');
-  status.textContent=ok?'Retry request sent. Please verify the row in your Google Sheet.':'Retry failed. Check your connection and Apps Script deployment.';
+  status.textContent=ok?'Registration SAVED (server confirmed).':'Retry failed: '+(REG.sheetErr||'unknown error');
  };
  T.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
